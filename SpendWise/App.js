@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, Alert, Platform } from 'react-native';
 
 import ScreenHeader from './components/ScreenHeader';
 import TotalCard from './components/TotalCard';
@@ -19,43 +19,46 @@ export default function App() {
   const [expenseCategory, setExpenseCategory] = useState('Other');
 
   const [error, setError] = useState('');
-  
+  const [success, setSuccess] = useState('');
 
   // Calculate total spending
   const total = expenses.reduce((sum, expense) => {
     return sum + parseFloat(expense.amount.replace('$', '').replace('-', ''));
   }, 0);
 
-  console.log('Total spending:', total);
-
-  // Delete function moved inside App component
+  // Delete function
   const handleDeleteExpense = (idToDelete) => {
     setExpenses(expenses.filter((item) => item.id !== idToDelete));
   };
+
   const addExpense = () => {
-  // Check 1: Missing fields
-  if (!expenseName.trim() || !expenseAmount.trim()) {
+  const trimmedName = expenseName.trim();
+  const trimmedAmount = expenseAmount.trim();
+
+  setError('');
+  setSuccess('');
+
+  // 1. Validations
+  if (!trimmedName || !trimmedAmount) {
     setError('Please fill in both name and amount fields.');
     return;
   }
 
-  // Check 2: Expense Name cannot be purely numeric
-  if (!isNaN(expenseName.trim())) {
+  if (!isNaN(trimmedName)) {
     setError('Expense name must contain letters, not just numbers.');
     return;
   }
 
-  // Check 3: Amount must be a valid positive number
-  const parsedAmount = parseFloat(expenseAmount);
+  const parsedAmount = parseFloat(trimmedAmount);
   if (isNaN(parsedAmount) || parsedAmount <= 0) {
     setError('Please enter a valid positive number for amount.');
     return;
   }
 
-  // Success path
+  // 2. Add to list
   const newExpense = {
     id: Date.now().toString(),
-    name: expenseName,
+    name: trimmedName,
     category: expenseCategory,
     amount: `-$${parsedAmount.toFixed(2)}`,
   };
@@ -64,7 +67,13 @@ export default function App() {
   setExpenseName('');
   setExpenseAmount('');
   setExpenseCategory('Other');
-  setError(''); // Clear error on success
+
+  // 3. Show ONLY in-page green banner (No alerts!)
+  setSuccess(`Successfully added "${trimmedName}" for $${parsedAmount.toFixed(2)}!`);
+
+  setTimeout(() => {
+    setSuccess('');
+  }, 4000);
 };
 
   return (
@@ -84,7 +93,7 @@ export default function App() {
           <Text style={styles.seeAll}>See All</Text>
         </View>
 
-        {/* Expenses List with id and onDelete props passed down */}
+        {/* Expenses List */}
         {expenses.map((expense) => (
           <ExpenseItem
             key={expense.id}
@@ -98,23 +107,42 @@ export default function App() {
         <TotalCard label="Total expenses" amount={total} />
 
         <Text style={styles.sectionTitle}>Quick Add Expense</Text>
-            
+
+        {/* ERROR MESSAGE */}
+        {error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>⚠️ {error}</Text>
+          </View>
+        ) : null}
+
+        {/* SUCCESS MESSAGE */}
+        {success ? (
+          <View style={styles.successContainer}>
+            <Text style={styles.successText}>✅ {success}</Text>
+          </View>
+        ) : null}
 
         <Text style={styles.inputLabel}>Expense name</Text>
-        <TextInput 
-          style={styles.input} 
+        <TextInput
+          style={[styles.input, error && styles.inputError]}
           placeholder="e.g. Lunch"
           value={expenseName}
-          onChangeText={setExpenseName}
+          onChangeText={(text) => {
+            setExpenseName(text);
+            if (error) setError('');
+          }}
         />
 
         <Text style={styles.inputLabel}>Amount</Text>
-        <TextInput 
-          style={styles.input} 
-          placeholder="0.00" 
+        <TextInput
+          style={[styles.input, error && styles.inputError]}
+          placeholder="0.00"
           keyboardType="numeric"
           value={expenseAmount}
-          onChangeText={setExpenseAmount}
+          onChangeText={(text) => {
+            setExpenseAmount(text);
+            if (error) setError('');
+          }}
         />
 
         <Pressable style={styles.addButton} onPress={addExpense}>
@@ -169,6 +197,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 15,
   },
+  inputError: {
+    borderColor: '#cc0000',
+    backgroundColor: '#fff0f0',
+  },
   addButton: {
     backgroundColor: '#222222',
     paddingVertical: 15,
@@ -186,5 +218,28 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 12,
     marginTop: 28,
+  },
+  errorContainer: {
+    backgroundColor: '#ffe6e6',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  errorText: {
+    color: '#cc0000',
+    fontSize: 14,
+  },
+  successContainer: {
+    backgroundColor: '#e6f4ea',
+    borderColor: '#b7e1cd',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  successText: {
+    color: '#137333',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
