@@ -1,59 +1,26 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-export default function ExpenseItem({ id, name, category, amount, onDelete }) {
+export default function ExpenseItem({ name, category, amount, onPress }) {
   return (
-    <View style={styles.container}>
-      <View style={styles.infoContainer}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`View details for ${name}`}
+      onPress={onPress}
+      style={({ pressed }) => [styles.expenseItem, pressed && styles.pressed]}
+    >
+      <View>
         <Text style={styles.name}>{name}</Text>
-        {/* Challenge 3: Category display */}
-        <Text style={styles.category}>{category}</Text> 
+        <Text style={styles.category}>{category}</Text>
       </View>
-
-      <View style={styles.rightContainer}>
-        <Text style={styles.amount}>{amount}</Text>
-        {/* Challenge 4: Delete button invoking callback prop */}
-        <Pressable onPress={() => onDelete(id)} style={styles.deleteButton}>
-          <Text style={styles.deleteText}>Delete</Text>
-        </Pressable>
-      </View>
-    </View>
+      <Text style={styles.amount}>-${amount.toFixed(2)}</Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  category: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 2,
-  },
-  rightContainer: {
-    alignItems: 'flex-end',
-  },
-  amount: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  deleteButton: {
-    marginTop: 4,
-  },
-  deleteText: {
-    color: '#d9534f',
-    fontSize: 12,
-  },
+  expenseItem: { alignItems: "center", backgroundColor: "#f1f3f5", borderRadius: 12, flexDirection: "row", justifyContent: "space-between", marginBottom: 10, padding: 16 },
+  pressed: { opacity: 0.6 },
+  name: { fontSize: 17, fontWeight: "600" },
+  category: { color: "#667085", marginTop: 4 },
+  amount: { fontSize: 16, fontWeight: "600" },
 });
