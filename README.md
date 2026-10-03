@@ -16,17 +16,13 @@ A React Native todo app built with Expo Router and Appwrite. Todos are stored in
    - `title` — string, required
    - `completed` — boolean
 4. In the Appwrite project, add the mobile app platform used by your build and grant the app's users the table permissions needed to list, create, update, and delete rows. For a classroom demo without authentication, configure appropriate table permissions in the Appwrite Console.
-5. Copy `.env.example` to `.env` and fill in the values from your Appwrite project:
+5. Configure these Expo public environment variables with values from your Appwrite project:
+   - `EXPO_PUBLIC_APPWRITE_ENDPOINT`
+   - `EXPO_PUBLIC_APPWRITE_PROJECT_ID`
+   - `EXPO_PUBLIC_APPWRITE_DB_ID`
+   - `EXPO_PUBLIC_APPWRITE_TABLE_TODOS_ID`
 
-```env
-EXPO_PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
-EXPO_PUBLIC_APPWRITE_PROJECT_ID=your_project_id
-EXPO_PUBLIC_APPWRITE_DB_ID=your_database_id
-EXPO_PUBLIC_APPWRITE_TABLE_TODOS_ID=your_todos_table_id
-EXPO_PUBLIC_APPWRITE_PACKAGE_NAME=your_registered_app_platform_id
-```
-
-`EXPO_PUBLIC_APPWRITE_PACKAGE_NAME` is optional in this project. If set, it must match the platform identifier registered for the app in Appwrite. Expo embeds `EXPO_PUBLIC_` values in the client app, so do not put API keys or other secrets in this file.
+`EXPO_PUBLIC_APPWRITE_PACKAGE_NAME` is optional. If set, it must match the platform identifier registered in Appwrite. Expo embeds `EXPO_PUBLIC_` values in the client app, so do not put API keys or other secrets in public environment variables.
 
 ## Install and run
 
@@ -45,7 +41,7 @@ npx expo start --ios
 npx expo start --web
 ```
 
-After changing `.env`, restart Expo and clear its cache:
+After changing environment variables, restart Expo and clear its cache:
 
 ```bash
 npx expo start -c
